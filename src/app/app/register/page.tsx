@@ -43,7 +43,7 @@ export default function RegisterTransactionPage() {
     },
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: ["transactions:bootstrap"] });
-      router.push("/app");
+      router.push("/app/transactions");
     },
   });
 

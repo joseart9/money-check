@@ -68,9 +68,9 @@ export function TransactionForm({
     };
 
     void sileo.promise(onSubmit(payload), {
-      loading: { title: "Guardando transacción..." },
-      success: { title: "Transacción registrada" },
-      error: { title: "No se pudo guardar" },
+      loading: { title: "Guardando", description: "Por favor espera" },
+      success: { title: "Exitoso", description: "La transacción se ha registrado correctamente" },
+      error: { title: "Error", description: "No se pudo guardar la transacción" },
     });
 
     setAmount("");
