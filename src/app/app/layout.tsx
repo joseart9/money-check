@@ -36,7 +36,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden">
-      <main className="flex-1 overflow-y-auto pb-20 px-4 pt-6 bg-background">{children}</main>
+      <main className="flex-1 overflow-y-auto pb-20 px-4 pt-6 bg-background">{children}
+      </main>
 
       <nav className="fixed bottom-0 left-0 right-0 z-50 border-t pb-[env(safe-area-inset-bottom)] h-20">
         <Tabs

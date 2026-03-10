@@ -1,5 +1,15 @@
-const CACHE_NAME = "money-check-cache-v1";
+const CACHE_NAME = "money-check-cache-v2";
 const OFFLINE_URLS = ["/", "/app"];
+
+// Never cache API or auth – always hit network so user-specific data stays fresh.
+function shouldBypassCache(url) {
+  const path = new URL(url).pathname;
+  return (
+    path.startsWith("/api/") ||
+    path.startsWith("/_next/") ||
+    path.includes("auth")
+  );
+}
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -28,16 +38,37 @@ self.addEventListener("fetch", (event) => {
 
   if (request.method !== "GET") return;
 
+  const url = request.url;
+
+  // API and dynamic data: network only, no cache read/write
+  if (shouldBypassCache(url)) {
+    event.respondWith(
+      fetch(request).catch(() => {
+        return new Response("Offline", {
+          status: 503,
+          statusText: "Offline",
+        });
+      }),
+    );
+    return;
+  }
+
+  // Static/shell: cache-first for offline, but revalidate in background
   event.respondWith(
     caches.match(request).then((cached) => {
-      if (cached) return cached;
+      if (cached) {
+        // Optional: could fetch in background to update cache; for now return cached
+        return cached;
+      }
 
       return fetch(request)
         .then((response) => {
           const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, copy).catch(() => {});
-          });
+          if (response.ok) {
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(request, copy).catch(() => {});
+            });
+          }
           return response;
         })
         .catch(() => {
@@ -52,4 +83,3 @@ self.addEventListener("fetch", (event) => {
     }),
   );
 });
-
